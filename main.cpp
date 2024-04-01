@@ -153,8 +153,53 @@ public:
 };
 
 int main() {
-    OrderValidatingEngine order_validating_engine;
-    order_validating_engine.execute(std::cin, std::cout);
+    try {
+        std::string directory_path;
+        std::cout << "Enter directory path: ";
+        std::cin >> directory_path;
+
+        // Validate directory path
+        if (!fs::is_directory(directory_path)) {
+            throw std::invalid_argument("Invalid directory path.");
+        }
+
+        // Create FilenameMatcher and DependencyProvider instances
+        FilenameMatcher filename_matcher(directory_path);
+        DependencyProvider dependency_provider(directory_path, filename_matcher);
+
+        // Read order of files from input and validate
+        std::cout << "Enter file processing order (file numbers separated by space, -1 to end): ";
+        std::vector<int> order;
+        int file_number;
+        while (std::cin >> file_number && file_number != -1) {
+            if (file_number < 0 || file_number >= dependency_provider.provideDependencies().size()) {
+                throw std::invalid_argument("Invalid file number.");
+            }
+            order.push_back(file_number);
+        }
+
+        // Validate the order
+        OrderValidator validator(dependency_provider);
+        bool is_order_correct = validator.isOrderCorrect(order);
+
+        // Output the result
+        if (is_order_correct) {
+            std::cout << "File processing order is correct." << std::endl;
+        } else {
+            std::cout << "Incorrect file processing order. Files with unmet dependencies: ";
+            for (int file_index : order) {
+                if (!validator.isOrderCorrect({file_index})) {
+                    std::cout << filename_matcher.numberToFilename(file_index) << " ";
+                }
+            }
+            std::cout << std::endl;
+        }
+    } catch (const std::exception& e) {
+        // Handle exceptions
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+
     return 0;
 }
- 
+
