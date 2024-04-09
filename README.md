@@ -1,7 +1,3 @@
-Based on the content of the file you've provided, I will create a README for the GitHub repository containing this code. This README will include a brief introduction, prerequisites, how to build and run the code, and a basic description of its functionality.
-
----
-
 # Header Dependency Resolver
 
 ## Introduction
